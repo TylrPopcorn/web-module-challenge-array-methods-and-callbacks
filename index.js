@@ -1,22 +1,28 @@
 const { fifaData } = require('./fifa.js')
-
 // ⚽️ M  V P ⚽️ //
 
 /* 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀 Task 1: 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
 Practice accessing data by console.log-ing the following pieces of data note. 
 
 💡 HINT: You may want to filter the data first 😉*/
+const finals2014 = fifaData.filter(function (item) {
+    return item.Year == 2014 && item.Stage == "Final"
+})
+console.log("task1: ", finals2014)
 
 //(a) Home Team name for 2014 world cup final
+console.log("task1: ", finals2014[0]['Home Team Name'])
 
 //(b) Away Team name for 2014 world cup final
+console.log("task1: ", finals2014[0]['Away Team Name'])
 
 //(c) Home Team goals for 2014 world cup final
+console.log("task 1: ", finals2014[0]['Home Team Goals'])
 
 //(d) Away Team goals for 2014 world cup final
-
+console.log("task 1: ", finals2014[0]['Away Team Goals'])
 //(e) Winner of 2014 world cup final */
-
+console.log("task 1: ", finals2014[0]['Win conditions'])
 
 /* 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀 Task 2: 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀 
 Use getFinals to do the following:
@@ -26,10 +32,16 @@ Use getFinals to do the following:
 💡 HINT - you should be looking at the stage key inside of the objects
 */
 
-function getFinals(/* code here */) {
+function getFinals(data) {
     /* code here */
+    const allFinals = data.filter(function(item){
+        return item.Stage == "Final"
+    })
+
+    return allFinals
  }
 
+ console.log("task2: ", getFinals(fifaData));
 
 
 /* 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀 Task 3: 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
@@ -38,10 +50,12 @@ Use the higher-order function called getYears to do the following:
 2. Receive a callback function as the second parameter that will take getFinals from task 2 as an argument
 3. Return an array called years containing all of the years in the getFinals data set*/
 
-function getYears(/* code here */) {
+function getYears(data, getFinalsCB) {
     /* code here */
+    return getFinalsCB(data).map(item => item.Year)
 }
 
+console.log(getYears(fifaData, getFinals))
 
 
 /* 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀 Task 4: 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
@@ -52,11 +66,12 @@ Use the higher-order function getWinners to do the following:
 💡 HINT: Don't worry about ties for now (Please see the README file for info on ties for a stretch goal.)
 4. Returns the names of all winning countries in an array called `winners` */ 
 
-function getWinners(/* code here */) {
+function getWinners(data, getFinalsCB) {
     /* code here */
+    return getFinalsCB(data).map(item => item['Home Team Goals'] > item["Away Team Goals"] ? item['Home Team Name']:item["Away Team Name"])
 }
 
-
+console.log("Task4: ", getWinners(fifaData, getFinals))
 
 /* 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀 Task 5: 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀 
 Use the higher-order function getWinnersByYear to do the following:
@@ -69,11 +84,15 @@ Use the higher-order function getWinnersByYear to do the following:
 💡 HINT: the strings returned need to exactly match the string in step 4.
  */
 
-function getWinnersByYear(/* code here */) {
+function getWinnersByYear(data, getWinnersCB, getYearsCB) {
     /* code here */
+    const winners = getWinnersCB(data, getFinals)
+    const years = getYearsCB(data, getFinals)
+
+    return winners.map((item, index)=>`In ${years[index]}, ${item} won the world cup!`)
 }
 
-
+console.log("tak 5: ", getWinnersByYear(fifaData, getYears, getWinners))
 
 /* 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀 Task 6: 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
 Use the higher order function getAverageGoals to do the following: 
@@ -88,13 +107,16 @@ Use the higher order function getAverageGoals to do the following:
  
 */
 
-function getAverageGoals(/* code here */) {
+function getAverageGoals(data,) {
     /* code here */
- }
+    const averageHomeGoals = data.reduce(function (acc, item) {
+        return acc + item["Home Team Goals"] + item["Away Team Goals"]
+    }, 0)
 
+    return (averageHomeGoals / data.length).toFixed(2);
+}
 
-
-
+console.log("task 6:", getAverageGoals(fifaData));
 /// 🥅 STRETCH 🥅 ///
 
 /* 💪💪💪💪💪 Stretch 1: 💪💪💪💪💪 
@@ -103,32 +125,55 @@ Create a function called `getCountryWins` that takes the parameters `data` and `
 Hint: Investigate your data to find "team initials"!
 Hint: use `.reduce` */
 
-function getCountryWins(/* code here */) {
-
+function getCountryWins(data, teamInitials) {
     /* code here */
+    const data2 = data.filter(function(item){
+        return item["Home Team Initials"] && item["Away Team Initials"] 
+    })
 
+    let wins = 0;
+    for (let i = 0; i< data2.length; i++){
+        if (data2[i].Stadium.indexOf("World Cup")>-1){
+            if (data2[i]["Home Team Initials"] == teamInitials){
+                if (data2[i]["Home Team Goals"] > data2[i]["Away Team Goals"]) {
+                    wins++
+                }
+            } else if (data2[i]["Away Team Initials"] == teamInitials) {
+                if (data2[i]["Away Team Goals"] > data2[i]["Home Team Goals"]) {
+                    wins++
+                }
+            }
+        }
+    }
+
+   
+    return wins;
 }
+
+console.log("stretch 1:", getCountryWins(fifaData));
 
 
 
 /* 💪💪💪💪💪 Stretch 2: 💪💪💪💪💪 
-Write a function called getGoals() that accepts a parameter `data` and returns the team with the most goals score per appearance (average goals for) in the World Cup finals */
+Write a function called getGoals() that accepts a parameter `data` and returns the team with the most goals scored per appearance (average goals for) in the World Cup finals */
 
-function getGoals(/* code here */) {
-
+function getGoals(data) {
     /* code here */
-
+    
 }
+
+console.log("stretch 2: ", getGoals(fifaData));
 
 
 /* 💪💪💪💪💪 Stretch 3: 💪💪💪💪💪
 Write a function called badDefense() that accepts a parameter `data` and calculates the team with the most goals scored against them per appearance (average goals against) in the World Cup finals */
 
-function badDefense(/* code here */) {
-
+function badDefense(data) {
     /* code here */
-
+//  i dont know. question is too confusing to understand.
 }
+
+console.log("stretch 3: ", badDefense(fifaData))
 
 
 /* If you still have time, use the space below to work on any stretch goals of your chosing as listed in the README file. */
